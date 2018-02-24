@@ -1,0 +1,33 @@
+language: go
+go:
+  - 1.6
+  - 1.7.x
+  - master
+
+services:
+  - redis-server
+  - postgresql
+
+dist: trusty
+
+addons:
+  postgresql: "9.6"
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
+    - gcc-4.8
+    - clang
+before_install:
+  - "psql -c 'create database golang_gin_db;' -U postgres"
+  - "psql golang_gin_db -c 'create extension postgis;' -U postgres"
+  - "psql -U postgres < ./db/database.sql"
+  - sleep 3
+
+install:
+  - go get -t -v ./...
+  - go get github.com/bmizerany/assert
+
+script:
+ - go test -v ./tests/*
